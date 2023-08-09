@@ -4,7 +4,7 @@
 	"version": "1.0.0",
 	"main": "main.js",
 	"scripts": {
-		"build": "tsc -noEmit -skipLibCheck && node esbuild.config.mjs production"
+		"build": "tsc -noEmit -skipLibCheck && node esbuild.config.mjs production && cp main.js /Users/lorenzovaccarini/Library/Mobile\\ Documents/iCloud~md~obsidian/Documents/Obsidian\\ Vault/.obsidian/plugins/obsidian-smart-paste"
 	},
 	"keywords": [],
 	"author": "",
@@ -18,5 +18,9 @@
 		"obsidian": "latest",
 		"tslib": "2.4.0",
 		"typescript": "4.7.4"
+	},
+	"dependencies": {
+		"@types/pngjs": "^6.0.1",
+		"pngjs": "^7.0.0"
 	}
 }

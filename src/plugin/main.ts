@@ -2,6 +2,7 @@ import {Notice, Plugin} from 'obsidian';
 import {KeyModal} from "./keyModal";
 import clipboardController from "../controller/clipboardController";
 import apiController, {RequestStatus} from "../controller/apiController";
+import imageController from "../controller/imageController";
 
 // Remember to rename these classes and interfaces!
 
@@ -84,6 +85,14 @@ export default class ObsidianSmartPaste extends Plugin {
 						new Notice("There has been an error with your API key");
 					}
 				});
+			}
+		})
+		this.addCommand({
+			id: 'test',
+			name: 'test',
+			callback: () => {
+				console.log("clipboard controller ", clipboardController.filePath);
+				//imageController.loadImage(clipboardController.filePath)
 			}
 		})
 	}

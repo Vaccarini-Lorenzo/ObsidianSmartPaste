@@ -1,4 +1,5 @@
 import {createReadStream, readFileSync, ReadStream, writeFileSync} from "fs";
+import imageController from "./imageController";
 const {clipboard} = require('electron')
 
 enum ClipboardStatus {
@@ -11,6 +12,8 @@ class ClipboardController {
 	os: string;
 	blob: Blob;
 	basePath: string;
+	filePath: string;
+	cachedExternal: Buffer;
 
 	constructor() {
 		this.os = process.platform;
@@ -28,20 +31,30 @@ class ClipboardController {
 			const externalDeviceData =  clipboard.readBuffer("public.png");
 			const localFileURL = clipboard.read("public.file-url").replace("file://", "")
 			if (externalDeviceData != ""){
-				writeFileSync(ref.basePath + "/.tmp.png", externalDeviceData);
-				ref.blob = new Blob([readFileSync(ref.basePath + "/.tmp.png")]);
+				if(ref.cachedExternal != undefined && ref.cachedExternal.toString() == externalDeviceData.toString()) return ClipboardStatus.EXTERNAL_DATA;
+				console.log("Updating external device data")
+				ref.cachedExternal = externalDeviceData;
+				ref.filePath = ref.basePath + "/.tmp.png";
+				writeFileSync(ref.filePath, externalDeviceData);
+				let fileBuffer = readFileSync(ref.filePath)
+				ref.blob = new Blob([fileBuffer]);
 				return ClipboardStatus.EXTERNAL_DATA;
 			}
 			if (localFileURL != ""){
-				ref.getFileContent(localFileURL);
+				if(localFileURL.substring(localFileURL.length - 3) != "png") return ClipboardStatus.EMPTY;
+				if (ref.filePath != undefined && localFileURL == ref.filePath) return ClipboardStatus.LOCAL_DATA;
+				console.log("Updating local device data");
+				ref.filePath = localFileURL;
+				const fileBuffer = ref.getFileContent(ref.filePath);
+				ref.blob = new Blob([fileBuffer]);
 				return ClipboardStatus.LOCAL_DATA;
 			}
 		}
 		return ClipboardStatus.EMPTY;
 	}
 
-	private getFileContent(url: string){
-		this.blob = new Blob([readFileSync(decodeURI(url))]);
+	private getFileContent(url: string): Buffer{
+		return readFileSync(decodeURI(url));
 	}
 
 	setClipboard(data: Buffer) {

@@ -1,6 +1,7 @@
 import clipboardController from "./clipboardController";
 import axios from "axios";
 import {readFileSync, writeFileSync} from "fs";
+import imageController from "./imageController";
 const FormData = require('form-data');
 
 export enum RequestStatus {
@@ -42,7 +43,8 @@ class ApiController {
 				'X-Api-Key': this.apiKey,
 			},
 		})
-		clipboardController.setClipboard(Buffer.from(axiosResponse.data));
+		let processedImage = await imageController.processImage(Buffer.from(axiosResponse.data))
+		clipboardController.setClipboard(processedImage);
 		if (axiosResponse.status == 200) return RequestStatus.PROCESSED;
 		if(axiosResponse.status == 403) return RequestStatus.INVALID_KEY;
 		return RequestStatus.ERROR;

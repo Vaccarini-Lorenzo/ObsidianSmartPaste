@@ -37,6 +37,9 @@ export default class ObsidianSmartPaste extends Plugin {
 	keyModal: KeyModal;
 
 	async onload() {
+		let basePath = (this.app.vault.adapter as any).basePath
+		basePath =`${basePath}/.obsidian/plugins/obsidian-smart-paste`;
+		clipboardController.injectPath(basePath);
 		this.keyModal = new KeyModal(this.app);
 		await this.loadSettings();
 		this.registerCommands();
@@ -72,6 +75,14 @@ export default class ObsidianSmartPaste extends Plugin {
 			name: 'Smart paste',
 			callback: () => {
 				apiController.processClipboard();
+			}
+		})
+
+		this.addCommand({
+			id: 'test',
+			name: 'test',
+			callback: () => {
+				clipboardController.test();
 			}
 		})
 	}

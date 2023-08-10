@@ -21,6 +21,8 @@
 	},
 	"dependencies": {
 		"@types/pngjs": "^6.0.1",
+		"axios": "^1.4.0",
+		"dot-env": "^0.0.1",
 		"pngjs": "^7.0.0"
 	}
 }

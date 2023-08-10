@@ -28,13 +28,11 @@ class ClipboardController {
 			const externalDeviceData =  clipboard.readBuffer("public.png");
 			const localFileURL = clipboard.read("public.file-url").replace("file://", "")
 			if (externalDeviceData != ""){
-				console.log("external device data");
 				writeFileSync(ref.basePath + "/.tmp.png", externalDeviceData);
 				ref.blob = new Blob([readFileSync(ref.basePath + "/.tmp.png")]);
 				return ClipboardStatus.EXTERNAL_DATA;
 			}
 			if (localFileURL != ""){
-				console.log("local data");
 				ref.getFileContent(localFileURL);
 				return ClipboardStatus.LOCAL_DATA;
 			}

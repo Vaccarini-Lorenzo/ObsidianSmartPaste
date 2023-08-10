@@ -1,5 +1,6 @@
 import {App, Modal, Setting} from "obsidian";
 import {appendFileSync, writeFileSync} from "fs";
+import apiController from "../controller/apiController";
 
 export class KeyModal extends Modal {
 	basePath: string;
@@ -13,21 +14,24 @@ export class KeyModal extends Modal {
 		const { contentEl } = this;
 		let key: string;
 		let numberOfReq: string;
-		contentEl.createEl("h1", {text: "Add an API key and the number of free requests"});
+//		contentEl.createEl("h1", {text: "Add an API key and the number of free requests"});
+		contentEl.createEl("h1", {text: "Add a remove.bg API key"});
 		new Setting(contentEl)
 			.setName("API-Key")
 			.addText((text) => text.onChange((newText) => key = newText));
+		/*
 		new Setting(contentEl)
 			.setName("# Free requests")
 			.addText((text) => text.onChange((newText) => numberOfReq = newText));
-
+		 */
 		new Setting(contentEl)
 			.addButton((btn) =>
 				btn
 					.setButtonText("Submit")
 					.setCta()
 					.onClick(() => {
-						this.updateAPIKeyFile(key, numberOfReq);
+						this.updateAPIKeyFile(key);
+						this.close();
 					}));
 	}
 
@@ -36,15 +40,9 @@ export class KeyModal extends Modal {
 		contentEl.empty();
 	}
 
-	private updateAPIKeyFile(key: string, numberOfReq: string) {
-		const filePath = this.basePath + "/.keys.txt"
-		try{
-			appendFileSync(filePath, `${key} ${numberOfReq}`)
-		} catch (e) {
-			if (e.code === 'ENOENT') {
-				console.log("No tags file found: Creating one")
-				writeFileSync(filePath, `${key} ${numberOfReq}`);
-			}
-		}
+	private updateAPIKeyFile(key: string) {
+		const filePath = this.basePath + "/.key.txt"
+		writeFileSync(filePath, key);
+		apiController.setAPIKey(key);
 	}
 }

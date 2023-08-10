@@ -41,6 +41,7 @@ export default class ObsidianSmartPaste extends Plugin {
 		let basePath = (this.app.vault.adapter as any).basePath
 		basePath =`${basePath}/.obsidian/plugins/obsidian-smart-paste`;
 		clipboardController.injectPath(basePath);
+		apiController.injectPath(basePath);
 		this.keyModal = new KeyModal(this.app);
 		await this.loadSettings();
 		this.registerCommands();
@@ -75,7 +76,7 @@ export default class ObsidianSmartPaste extends Plugin {
 			id: 'paste-no-bg',
 			name: 'Smart paste',
 			callback: () => {
-				new Notice("Removing the copied image background...")
+				new Notice("Removing the copied image background.\nPlease wait...")
 				apiController.processClipboard().then(requestStatus => {
 					if(requestStatus == RequestStatus.PROCESSED){
 						new Notice("Background removed!");

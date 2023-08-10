@@ -27,7 +27,7 @@ class ApiController {
 		this.apiKey = apiKey;
 	}
 
-	async processClipboard(): Promise<RequestStatus> {
+	async processClipboard(highContrast: boolean): Promise<RequestStatus> {
 		console.log("Processing clipboard");
 		const blob = clipboardController.blob;
 		const formData = new FormData();
@@ -43,8 +43,8 @@ class ApiController {
 				'X-Api-Key': this.apiKey,
 			},
 		})
-		let processedImage = await imageController.processImage(Buffer.from(axiosResponse.data))
-		clipboardController.setClipboard(processedImage);
+		if (highContrast) clipboardController.setClipboard(await imageController.processImage(Buffer.from(axiosResponse.data)));
+		else clipboardController.setClipboard(Buffer.from(axiosResponse.data));
 		if (axiosResponse.status == 200) return RequestStatus.PROCESSED;
 		if(axiosResponse.status == 403) return RequestStatus.INVALID_KEY;
 		return RequestStatus.ERROR;

@@ -2,49 +2,20 @@ import {Notice, Plugin} from 'obsidian';
 import {KeyModal} from "./keyModal";
 import clipboardController from "../controller/clipboardController";
 import apiController, {RequestStatus} from "../controller/apiController";
-import imageController from "../controller/imageController";
-
-// Remember to rename these classes and interfaces!
-
-interface MyPluginSettings {
-	mySetting: string;
-}
-
-const DEFAULT_SETTINGS: MyPluginSettings = {
-	mySetting: 'default'
-}
-
-/*
-function getClipboardFileURL() {
-	let filePath = "";
-	if (process.platform === "win32") {
-		var rawFilePath = clipboard.read("FileNameW");
-		filePath = rawFilePath.replace(
-			new RegExp(String.fromCharCode(0), "g"),
-			""
-		);
-	} else if (process.platform === "darwin") {
-		filePath = clipboard.readBuffer("public.png")
-		writeFileSync("/Users/lorenzovaccarini/test.png", filePath);
-	} else {
-		filePath = "";
-	}
-	return filePath;
-}
-
-*/
+import {DEFAULT_SETTINGS, SettingInterface, Settings} from "./settings";
 
 export default class ObsidianSmartPaste extends Plugin {
-	settings: MyPluginSettings;
+	settings: SettingInterface;
 	keyModal: KeyModal;
 
 	async onload() {
+		await this.loadSettings();
+
 		let basePath = (this.app.vault.adapter as any).basePath
 		basePath =`${basePath}/.obsidian/plugins/obsidian-smart-paste`;
 		clipboardController.injectPath(basePath);
 		apiController.injectPath(basePath);
 		this.keyModal = new KeyModal(this.app);
-		await this.loadSettings();
 		this.registerCommands();
 	}
 
@@ -77,8 +48,9 @@ export default class ObsidianSmartPaste extends Plugin {
 			id: 'paste-no-bg',
 			name: 'Smart paste',
 			callback: () => {
+				const highContrast = this.settings.highContrast;
 				new Notice("Removing the copied image background.\nPlease wait...")
-				apiController.processClipboard().then(requestStatus => {
+				apiController.processClipboard(highContrast).then(requestStatus => {
 					if(requestStatus == RequestStatus.PROCESSED){
 						new Notice("Background removed!");
 					} else if (requestStatus == RequestStatus.INVALID_KEY){
@@ -95,5 +67,6 @@ export default class ObsidianSmartPaste extends Plugin {
 				//imageController.loadImage(clipboardController.filePath)
 			}
 		})
+		this.addSettingTab(new Settings(this.app, this));
 	}
 }

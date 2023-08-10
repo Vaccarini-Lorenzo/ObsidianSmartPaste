@@ -5,15 +5,21 @@ import path from "path";
 import {createReadStream} from "fs";
 const { Readable } = require('stream');
 
+export enum RequestStatus {
+	PROCESSED,
+	INVALID_KEY,
+	ERROR
+}
+
 class ApiController {
-	processClipboard() {
+	async processClipboard(): Promise<RequestStatus> {
 		const testURL = "/Users/lorenzovaccarini/Desktop/ts_clipboard/test.png"
 		console.log("Processing clipboard");
 		const blob = clipboardController.blob;
 		const formData = new FormData();
 		formData.append('size', 'auto');
 		formData.append('image_file', blob , path.basename(testURL));
-		axios({
+		let axiosResponse = await axios({
 			method: "post",
 			url: "https://api.remove.bg/v1.0/removebg",
 			data: formData,
@@ -23,15 +29,11 @@ class ApiController {
 				'X-Api-Key': 'API-KEY',
 			},
 		})
-			.then(function (response) {
-				//writeFileSync("no-bg.png", response.data);
-				console.log(response.data);
-				clipboardController.setClipboard(Buffer.from(response.data));
-			})
-			.catch(function (response) {
-				//handle error
-				console.log(response);
-			})
+		console.log(axiosResponse.data);
+		clipboardController.setClipboard(Buffer.from(axiosResponse.data));
+		if (axiosResponse.status == 200) return RequestStatus.PROCESSED;
+		if(axiosResponse.status == 403) return RequestStatus.INVALID_KEY;
+		return RequestStatus.ERROR;
 	}
 }
 

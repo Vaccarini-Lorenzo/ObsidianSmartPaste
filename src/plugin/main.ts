@@ -1,7 +1,8 @@
-import { Plugin } from 'obsidian';
+import {Notice, Plugin} from 'obsidian';
 import {KeyModal} from "./keyModal";
 import clipboardController from "../controller/clipboardController";
-import apiController from "../controller/apiController";
+import apiController, {RequestStatus} from "../controller/apiController";
+
 // Remember to rename these classes and interfaces!
 
 interface MyPluginSettings {
@@ -64,7 +65,7 @@ export default class ObsidianSmartPaste extends Plugin {
 
 		this.addCommand({
 			id: 'add-api-key',
-			name: 'name',
+			name: 'Add API key',
 			callback: () => {
 				this.keyModal.open();
 			}
@@ -74,15 +75,14 @@ export default class ObsidianSmartPaste extends Plugin {
 			id: 'paste-no-bg',
 			name: 'Smart paste',
 			callback: () => {
-				apiController.processClipboard();
-			}
-		})
-
-		this.addCommand({
-			id: 'test',
-			name: 'test',
-			callback: () => {
-				clipboardController.test();
+				new Notice("Removing the copied image background...")
+				apiController.processClipboard().then(requestStatus => {
+					if(requestStatus == RequestStatus.PROCESSED){
+						new Notice("Background removed!");
+					} else if (requestStatus == RequestStatus.INVALID_KEY){
+						new Notice("There has been an error with your API key");
+					}
+				});
 			}
 		})
 	}

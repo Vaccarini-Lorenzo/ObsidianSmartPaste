@@ -43,7 +43,7 @@ class ClipboardController {
 	}
 
 	private getFileContent(url: string){
-		this.blob = new Blob([readFileSync(url)]);
+		this.blob = new Blob([readFileSync(decodeURI(url))]);
 	}
 
 	setClipboard(data: Buffer) {
